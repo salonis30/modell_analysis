@@ -14,8 +14,8 @@ st.set_page_config(layout="wide", page_title="ML Model Comparison Dashboard")
 # ------------------- Sample Dataset -------------------
 @st.cache_data
 def load_sample_data():
-    # Sample oil & gas production dataset
-    return pd.read_csv("sample_data.csv")  # Make sure to include a sample_data.csv in the same folder
+    # Load your specific dataset
+    return pd.read_csv(r"C:\Users\salon\Downloads\Crudeoil\oil_gas_production_india.csv")
 
 # ------------------- Login Page -------------------
 def login_page():
