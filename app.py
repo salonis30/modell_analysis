@@ -11,10 +11,10 @@ from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 # ------------------- Configuration -------------------
 st.set_page_config(layout="wide", page_title="ML Model Comparison Dashboard")
 
-# ------------------- Sample Dataset -------------------
+# ------------------- Load Static Local Dataset -------------------
 @st.cache_data
 def load_sample_data():
-    # Load your specific dataset
+    # Make sure this path exists on your system
     return pd.read_csv(r"C:\Users\salon\Downloads\Crudeoil\oil_gas_production_india.csv")
 
 # ------------------- Login Page -------------------
@@ -47,7 +47,7 @@ if page == "Static Comparative Analysis":
     st.header("🔍 Static: Comparative Analysis of ML Models")
 
     df = load_sample_data()
-    st.subheader("📁 Sample Dataset Preview")
+    st.subheader("📁 Dataset Preview")
     st.dataframe(df.head())
 
     target_col = st.selectbox("🎯 Select the Target Column", df.columns)
