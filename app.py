@@ -8,11 +8,36 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
+# ------------------- Configuration -------------------
 st.set_page_config(layout="wide", page_title="ML Model Comparison Dashboard")
 
+# ------------------- Sample Dataset -------------------
+@st.cache_data
+def load_sample_data():
+    # Sample oil & gas production dataset
+    return pd.read_csv("sample_data.csv")  # Make sure to include a sample_data.csv in the same folder
+
+# ------------------- Login Page -------------------
+def login_page():
+    st.title("🔐 Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if username == "admin" and password == "1234":
+            st.session_state.logged_in = True
+        else:
+            st.error("Invalid credentials")
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    login_page()
+    st.stop()
+
+# ------------------- Main App -------------------
 st.title("📊 Oil & Gas ML Comparative Dashboard")
 
-# Sidebar page selection
 page = st.sidebar.radio("Select Page", ["Static Comparative Analysis", "Dynamic Data Visualisation"])
 
 # --------------------------------------
@@ -20,62 +45,59 @@ page = st.sidebar.radio("Select Page", ["Static Comparative Analysis", "Dynamic 
 # --------------------------------------
 if page == "Static Comparative Analysis":
     st.header("🔍 Static: Comparative Analysis of ML Models")
-    uploaded_file = st.file_uploader("Upload a CSV File", type=["csv"])
 
-    if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.subheader("📁 Data Preview")
-        st.dataframe(df.head())
+    df = load_sample_data()
+    st.subheader("📁 Sample Dataset Preview")
+    st.dataframe(df.head())
 
-        target_col = st.selectbox("🎯 Select the Target Column for Prediction", df.columns)
-        feature_cols = st.multiselect("🧮 Select Feature Columns", df.columns.drop(target_col))
+    target_col = st.selectbox("🎯 Select the Target Column", df.columns)
+    feature_cols = st.multiselect("🧮 Select Feature Columns", df.columns.drop(target_col))
 
-        if st.button("Run Comparison"):
-            if not feature_cols:
-                st.warning("Please select at least one feature column.")
-            else:
-                X = df[feature_cols]
-                y = df[target_col]
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    if feature_cols:
+        X = df[feature_cols]
+        y = df[target_col]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-                models = {
-                    "Linear Regression": LinearRegression(),
-                    "Random Forest": RandomForestRegressor(random_state=42),
-                    "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
-                }
+        models = {
+            "Linear Regression": LinearRegression(),
+            "Random Forest": RandomForestRegressor(random_state=42),
+            "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+        }
 
-                results = {"Model": [], "R2 Score": [], "MAE": [], "RMSE": []}
+        results = {"Model": [], "R2 Score": [], "MAE": [], "RMSE": []}
 
-                for name, model in models.items():
-                    model.fit(X_train, y_train)
-                    preds = model.predict(X_test)
+        for name, model in models.items():
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
 
-                    results["Model"].append(name)
-                    results["R2 Score"].append(r2_score(y_test, preds))
-                    results["MAE"].append(mean_absolute_error(y_test, preds))
-                    results["RMSE"].append(mean_squared_error(y_test, preds, squared=False))
+            results["Model"].append(name)
+            results["R2 Score"].append(r2_score(y_test, preds))
+            results["MAE"].append(mean_absolute_error(y_test, preds))
+            results["RMSE"].append(mean_squared_error(y_test, preds, squared=False))
 
-                result_df = pd.DataFrame(results)
-                st.subheader("📈 Model Performance Comparison")
-                st.dataframe(result_df)
+        result_df = pd.DataFrame(results)
+        st.subheader("📈 Model Performance Comparison")
+        st.dataframe(result_df)
 
-                # Plotting
-                st.subheader("📊 Visual Comparison")
-                fig, ax = plt.subplots(1, 3, figsize=(18, 5))
-                sns.barplot(x="Model", y="R2 Score", data=result_df, ax=ax[0])
-                sns.barplot(x="Model", y="MAE", data=result_df, ax=ax[1])
-                sns.barplot(x="Model", y="RMSE", data=result_df, ax=ax[2])
-                ax[0].set_title("R2 Score Comparison")
-                ax[1].set_title("Mean Absolute Error")
-                ax[2].set_title("Root Mean Squared Error")
-                st.pyplot(fig)
+        # Plotting
+        st.subheader("📊 Visual Comparison")
+        fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+        sns.barplot(x="Model", y="R2 Score", data=result_df, ax=ax[0])
+        sns.barplot(x="Model", y="MAE", data=result_df, ax=ax[1])
+        sns.barplot(x="Model", y="RMSE", data=result_df, ax=ax[2])
+        ax[0].set_title("R2 Score Comparison")
+        ax[1].set_title("Mean Absolute Error")
+        ax[2].set_title("Root Mean Squared Error")
+        st.pyplot(fig)
+    else:
+        st.warning("Please select at least one feature column.")
 
 # --------------------------------------
 # PAGE 2: Dynamic Data Visualisation
 # --------------------------------------
 elif page == "Dynamic Data Visualisation":
     st.header("📂 Dynamic: Visualisation of Two CSV Files")
-    
+
     col1, col2 = st.columns(2)
 
     with col1:
