@@ -1,0 +1,46 @@
+Year,Company_Name,State,Oil_Production,Gas_Production,No_of_Wells,Capex,Employees,Rig_Count,Technology_Used,Region_Type,Price_per_Barrel,Price_per_MMBTU,Weather_Index,Maintenance_Days
+2021,ONGC,Gujarat,24847.27,17.43,138,9622.73,764,50,Horizontal Drilling,Onshore,3425.99,431.24,0.84,45
+2021,Oil India Ltd.,Assam,149850.62,25.86,69,3445.04,932,28,Hydraulic Fracturing,Onshore,6926.95,379.4,4.57,25
+2021,Reliance,Rajasthan,136446.12,6.25,48,3979.34,6793,33,Steam Injection,Offshore,5824.28,455.18,4.92,34
+2021,Cairn India,Assam,161352.43,14.77,101,493.82,8098,27,Hydraulic Fracturing,Offshore,6286.45,695.9,2.37,58
+2021,IOCL,Gujarat,90108.23,33.24,171,1584.38,5416,22,Steam Injection,Onshore,5582.29,431.55,3.32,47
+2022,ONGC,Maharashtra,125404.91,28.6,85,9878.24,7029,16,Horizontal Drilling,Offshore,3844.48,172.17,1.83,18
+2022,Oil India Ltd.,Assam,87841.66,37.8,111,977.68,4090,29,Steam Injection,Onshore,4689.73,492.53,2.21,50
+2022,Reliance,Maharashtra,163818.65,17.54,55,838.85,2000,18,Horizontal Drilling,Onshore,4547.26,721.73,0.54,34
+2022,Cairn India,Assam,157229.86,9.09,10,8374.95,8335,44,Horizontal Drilling,Onshore,4747.06,301.6,3.3,47
+2022,IOCL,Maharashtra,184351.16,17.41,118,3622.09,895,22,Steam Injection,Offshore,5400.3,628.28,0.51,38
+2023,ONGC,Rajasthan,94312.77,21.33,54,8604.5,6688,26,Horizontal Drilling,Onshore,3352.62,730.66,1.19,13
+2023,Oil India Ltd.,Assam,275437.77,34.38,62,8602.89,9669,11,Steam Injection,Onshore,3101.68,201.54,3.17,19
+2023,Reliance,Maharashtra,86330.19,7.16,158,2473.7,9325,21,Horizontal Drilling,Onshore,3170.13,464.06,4.37,59
+2023,Cairn India,Assam,214813.86,16.57,195,8838.78,2402,22,Hydraulic Fracturing,Onshore,4971.38,788.38,4.14,46
+2023,IOCL,Rajasthan,214909.86,25.76,88,2537.25,834,30,Horizontal Drilling,Offshore,4701.02,730.11,3.3,45
+2019,ONGC,Maharashtra,253280.02,43.25,100,3820,4170,3,Horizontal Drilling,Onshore,4184.29,568.42,3.3,47
+2019,Oil India Ltd.,Maharashtra,226989.29,31.82,53,7618.44,3251,44,Steam Injection,Onshore,3600.54,537.76,0.71,45
+2019,Reliance,Rajasthan,255660.91,17.01,37,5605.86,7712,27,Enhanced Oil Recovery,Offshore,5047.98,326.08,4.83,13
+2019,Cairn India,Assam,279353.56,30.63,169,8922.55,1603,33,Enhanced Oil Recovery,Onshore,3562.15,486.79,2.78,48
+2019,IOCL,Rajasthan,129322.63,15.5,176,1115.62,1292,4,Steam Injection,Offshore,4979.97,432.62,3,40
+2020,ONGC,Rajasthan,65445.32,45.41,27,1163.95,9248,11,Hydraulic Fracturing,Offshore,6784.7,411.86,2.4,16
+2020,Oil India Ltd.,Assam,190758.25,15.46,32,9958.07,1015,23,Enhanced Oil Recovery,Onshore,5461.18,418.85,3.81,23
+2020,Reliance,Assam,110916.83,18.52,78,220.88,7326,47,Steam Injection,Onshore,4171.36,590.24,4.64,30
+2020,Cairn India,Maharashtra,99829.29,39.64,96,3342.91,9066,15,Steam Injection,Onshore,5646.91,421.5,1.62,37
+2020,IOCL,Tamil Nadu,197861.24,19.94,107,4271.49,6452,11,Horizontal Drilling,Onshore,4397.82,708.24,0.84,14
+2024,ONGC,Gujarat,60052.51,18.99,172,1693.91,2984,45,Hydraulic Fracturing,Offshore,6466.67,544.24,1.85,36
+2024,Oil India Ltd.,Rajasthan,38217.94,24.61,144,518.66,1803,40,Enhanced Oil Recovery,Onshore,6036.07,690.23,3.89,20
+2024,Reliance,Tamil Nadu,211542.21,25,122,6681,7729,22,Enhanced Oil Recovery,Offshore,4626.3,657.75,2.15,12
+2024,Cairn India,Tamil Nadu,245406.35,29.59,20,3472.72,7859,13,Hydraulic Fracturing,Onshore,3374.31,453.69,4.59,6
+2024,IOCL,Maharashtra,135836.78,6.57,67,844.89,5909,35,Steam Injection,Offshore,4457.79,500.74,1.89,57
+2021,ONGC,Rajasthan,279980.59,37.73,36,1522.08,9094,29,Hydraulic Fracturing,Offshore,5238.19,344.61,0.82,25
+2021,Oil India Ltd.,Tamil Nadu,252867.02,38.52,36,9331.61,5756,1,Enhanced Oil Recovery,Onshore,4924.75,416.12,2.93,16
+2021,Reliance,Maharashtra,257762.56,40.49,29,7185.75,7894,12,Steam Injection,Offshore,5008.67,798.68,2.01,6
+2021,Cairn India,Rajasthan,176652.84,3.86,92,4816.79,1570,27,Steam Injection,Onshore,5506.24,697.78,2.76,50
+2021,IOCL,Assam,21026.81,5.46,100,225.1,1480,13,Hydraulic Fracturing,Onshore,4135.36,293.57,4.07,26
+2022,ONGC,Gujarat,291455.29,2.82,140,9950.87,784,25,Hydraulic Fracturing,Onshore,3638.1,252.88,2.31,51
+2022,Oil India Ltd.,Gujarat,19258.22,38.31,75,835.71,7210,37,Hydraulic Fracturing,Offshore,4219.93,269.19,2.51,29
+2022,Reliance,Assam,238631.97,37.26,22,4202.93,8597,32,Horizontal Drilling,Onshore,5577.33,435.25,4.25,28
+2022,Cairn India,Gujarat,263838.8,43.9,176,3635.71,6249,29,Hydraulic Fracturing,Onshore,3010.85,377.43,3.24,28
+2022,IOCL,Rajasthan,260390.64,31.02,175,3218.77,581,47,Enhanced Oil Recovery,Offshore,4303.3,438.75,4.71,53
+2023,ONGC,Maharashtra,168667.54,42.97,98,9390.78,6797,16,Steam Injection,Offshore,3554.3,698.76,2.28,32
+2023,Oil India Ltd.,Assam,175306.44,14.7,149,8259.11,4684,7,Steam Injection,Onshore,3769.42,670.53,1.05,39
+2023,Reliance,Assam,14608.49,4.82,174,7806.7,1245,46,Hydraulic Fracturing,Offshore,6594.84,344.29,0.92,15
+2023,Cairn India,Rajasthan,159641.85,20.18,157,6742.73,7102,16,Hydraulic Fracturing,Offshore,5902.4,186.4,1.43,59
+2023,IOCL,Assam,172246.51,21.9,101,3865.63,6360,44,Horizontal Drilling,Onshore,5920.77,569.78,4.98,52
