@@ -8,6 +8,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 
+# --- Set page config first ---
 st.set_page_config(page_title="ML Comparison & Dynamic Visualizer", layout="wide")
 
 # --- Function for ML Model Evaluation ---
@@ -134,6 +135,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 
+# --- Set page config first ---
 st.set_page_config(page_title="ML Comparison & Dynamic Visualizer", layout="wide")
 
 # --- Function for ML Model Evaluation ---
