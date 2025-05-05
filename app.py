@@ -11,20 +11,20 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Oil & Gas ML Comparative Dashboard", layout="wide")
 st.title("📊 Oil & Gas ML Comparative Dashboard")
 
-# Sidebar Page Selector
+# Sidebar navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("", ["🔴 Static Comparative Analysis", "⚙️ Dynamic Data Visualisation"])
+page = st.sidebar.radio("Go to", ["🔴 Static Comparative Analysis", "⚙️ Dynamic Data Visualisation"])
 
-# Load predefined dataset
+# Load predefined dataset (your own dataset)
 @st.cache_data
 def load_dataset():
-    return pd.read_csv("oil_gas_production_india.csv")  # No "data/" folder needed
+    return pd.read_csv("data/oil_gas_production_india.csv")  # ✅ Update your GitHub/Cloud path if needed
 
-
-# Common ML function
+# Common ML evaluation function
 def evaluate_models(X, y, models):
     results = {}
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
     for name, model in models.items():
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
@@ -35,13 +35,15 @@ def evaluate_models(X, y, models):
         }
     return results
 
-# STATIC PAGE (Without Upload)
+# ------------------ STATIC PAGE ------------------
 if "Static" in page:
     st.subheader("📊 Comparative Analysis on Preloaded Dataset")
     df = load_dataset()
 
+    # Sidebar selections
     st.sidebar.subheader("🎯 Select Target Column")
-    target_col = st.sidebar.selectbox("Target Column", df.columns)
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
+    target_col = st.sidebar.selectbox("Target Column", numeric_cols)
 
     st.sidebar.subheader("🧮 Select Feature Columns")
     feature_cols = st.sidebar.multiselect("Feature Columns", df.columns.drop(target_col))
@@ -49,6 +51,7 @@ if "Static" in page:
     st.sidebar.subheader("📈 Select Chart Type")
     chart_type = st.sidebar.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Pie Chart"])
 
+    # ML Analysis
     if feature_cols:
         X = df[feature_cols]
         y = df[target_col]
@@ -60,8 +63,8 @@ if "Static" in page:
         }
 
         results = evaluate_models(X, y, models)
-
         result_df = pd.DataFrame(results).T
+
         st.subheader("📊 Model Performance Metrics")
         st.dataframe(result_df)
 
@@ -81,10 +84,9 @@ if "Static" in page:
         ax.set_title(f"{metric} - {chart_type}")
         st.pyplot(fig)
     else:
-        st.warning("Select at least one feature column to proceed.")
+        st.warning("⚠️ Select at least one feature column to proceed.")
 
-
-# DYNAMIC PAGE
+# ------------------ DYNAMIC PAGE ------------------
 if "Dynamic" in page:
     st.subheader("📁 Upload Two CSV Files for Side-by-Side Visualisation")
     file1 = st.file_uploader("Upload First CSV", type=["csv"], key="file1")
@@ -102,4 +104,4 @@ if "Dynamic" in page:
             st.write("📄 **Second Dataset Preview**")
             st.dataframe(df2.head())
     else:
-        st.info("Upload two datasets for dynamic comparison.")     
+        st.info("Upload two datasets for dynamic comparison.")
