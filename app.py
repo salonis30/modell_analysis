@@ -1,107 +1,485 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Oil & Gas ML Comparative Dashboard", layout="wide")
-st.title("📊 Oil & Gas ML Comparative Dashboard")
+# Streamlit page setup
+st.set_page_config(page_title="Oil & Gas ML Dashboard", layout="wide")
 
-# Sidebar navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["🔴 Static Comparative Analysis", "⚙️ Dynamic Data Visualisation"])
-
-# Load predefined dataset (your own dataset)
+# --- Load dataset ---
 @st.cache_data
 def load_dataset():
-    return pd.read_csv("data/oil_gas_production_india.csv")  # ✅ Update your GitHub/Cloud path if needed
+    try:
+        return pd.read_csv("data/oil_gas_production_india.csv")
+    except FileNotFoundError:
+        return None
 
-# Common ML evaluation function
-def evaluate_models(X, y, models):
+# --- Evaluate model ---
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    return {
+        "R2 Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "RMSE": mean_squared_error(y_test, predictions, squared=False)
+    }
+
+# --- Train and compare models ---
+def model_comparison(df, target_col):
+    st.subheader("📈 ML Model Comparison")
+
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(random_state=42),
+        "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+    }
+
     results = {}
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
     for name, model in models.items():
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        results[name] = {
-            "R2 Score": r2_score(y_test, y_pred),
-            "MAE": mean_absolute_error(y_test, y_pred),
-            "RMSE": np.sqrt(mean_squared_error(y_test, y_pred))
-        }
-    return results
+        results[name] = evaluate_model(model, X_test, y_test)
 
-# ------------------ STATIC PAGE ------------------
-if "Static" in page:
-    st.subheader("📊 Comparative Analysis on Preloaded Dataset")
-    df = load_dataset()
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(results).T
 
-    # Sidebar selections
-    st.sidebar.subheader("🎯 Select Target Column")
-    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
-    target_col = st.sidebar.selectbox("Target Column", numeric_cols)
+    # Show metrics table
+    st.dataframe(results_df.style.highlight_max(axis=0), use_container_width=True)
 
-    st.sidebar.subheader("🧮 Select Feature Columns")
-    feature_cols = st.sidebar.multiselect("Feature Columns", df.columns.drop(target_col))
+    # Plot metrics
+    st.subheader("📊 Model Metrics Comparison")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    results_df.plot(kind="bar", ax=ax)
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
 
-    st.sidebar.subheader("📈 Select Chart Type")
-    chart_type = st.sidebar.selectbox("Chart Type", ["Bar Chart", "Line Chart", "Pie Chart"])
+# --- Main UI ---
+st.title("📊 Oil & Gas Production ML Dashboard")
+st.markdown("Compare machine learning models for predicting oil and gas production.")
 
-    # ML Analysis
-    if feature_cols:
-        X = df[feature_cols]
-        y = df[target_col]
+# Load default dataset if exists
+df = load_dataset()
 
-        models = {
-            "Linear Regression": LinearRegression(),
-            "Random Forest": RandomForestRegressor(),
-            "XGBoost": XGBRegressor()
-        }
+# If not found, ask user to upload
+if df is None:
+    st.warning("⚠️ Default dataset not found. Please upload your dataset.")
+    uploaded_file = st.file_uploader("📤 Upload your Oil & Gas CSV", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
 
-        results = evaluate_models(X, y, models)
-        result_df = pd.DataFrame(results).T
+# If dataset loaded
+if df is not None:
+    st.success("✅ Dataset Loaded Successfully!")
+    st.subheader("📋 Dataset Preview")
+    st.dataframe(df.head(), use_container_width=True)
 
-        st.subheader("📊 Model Performance Metrics")
-        st.dataframe(result_df)
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
 
-        st.subheader(f"📉 {chart_type} of Selected Metric")
-        metric = st.selectbox("Metric to Visualize", result_df.columns)
-
-        fig, ax = plt.subplots()
-        if chart_type == "Bar Chart":
-            ax.bar(result_df.index, result_df[metric], color='skyblue')
-            ax.set_ylabel(metric)
-        elif chart_type == "Line Chart":
-            ax.plot(result_df.index, result_df[metric], marker='o', linestyle='-', color='orange')
-            ax.set_ylabel(metric)
-        elif chart_type == "Pie Chart":
-            ax.pie(result_df[metric], labels=result_df.index, autopct='%1.1f%%')
-            ax.axis("equal")
-        ax.set_title(f"{metric} - {chart_type}")
-        st.pyplot(fig)
+    if len(numeric_cols) < 2:
+        st.error("Dataset must contain at least 2 numeric columns.")
     else:
-        st.warning("⚠️ Select at least one feature column to proceed.")
+        target = st.selectbox("🎯 Select Target Column for Prediction", options=numeric_cols)
+        model_comparison(df[numeric_cols], target)
 
-# ------------------ DYNAMIC PAGE ------------------
-if "Dynamic" in page:
-    st.subheader("📁 Upload Two CSV Files for Side-by-Side Visualisation")
-    file1 = st.file_uploader("Upload First CSV", type=["csv"], key="file1")
-    file2 = st.file_uploader("Upload Second CSV", type=["csv"], key="file2")
+else:
+    st.stop()
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-    if file1 is not None and file2 is not None:
-        df1 = pd.read_csv(file1)
-        df2 = pd.read_csv(file2)
+# Streamlit page setup
+st.set_page_config(page_title="Oil & Gas ML Dashboard", layout="wide")
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write("📄 **First Dataset Preview**")
-            st.dataframe(df1.head())
-        with col2:
-            st.write("📄 **Second Dataset Preview**")
-            st.dataframe(df2.head())
+# --- Load dataset ---
+@st.cache_data
+def load_dataset():
+    try:
+        return pd.read_csv("data/oil_gas_production_india.csv")
+    except FileNotFoundError:
+        return None
+
+# --- Evaluate model ---
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    return {
+        "R2 Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "RMSE": mean_squared_error(y_test, predictions, squared=False)
+    }
+
+# --- Train and compare models ---
+def model_comparison(df, target_col):
+    st.subheader("📈 ML Model Comparison")
+
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(random_state=42),
+        "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+    }
+
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        results[name] = evaluate_model(model, X_test, y_test)
+
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(results).T
+
+    # Show metrics table
+    st.dataframe(results_df.style.highlight_max(axis=0), use_container_width=True)
+
+    # Plot metrics
+    st.subheader("📊 Model Metrics Comparison")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    results_df.plot(kind="bar", ax=ax)
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
+
+# --- Main UI ---
+st.title("📊 Oil & Gas Production ML Dashboard")
+st.markdown("Compare machine learning models for predicting oil and gas production.")
+
+# Load default dataset if exists
+df = load_dataset()
+
+# If not found, ask user to upload
+if df is None:
+    st.warning("⚠️ Default dataset not found. Please upload your dataset.")
+    uploaded_file = st.file_uploader("📤 Upload your Oil & Gas CSV", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+
+# If dataset loaded
+if df is not None:
+    st.success("✅ Dataset Loaded Successfully!")
+    st.subheader("📋 Dataset Preview")
+    st.dataframe(df.head(), use_container_width=True)
+
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+
+    if len(numeric_cols) < 2:
+        st.error("Dataset must contain at least 2 numeric columns.")
     else:
-        st.info("Upload two datasets for dynamic comparison.")
+        target = st.selectbox("🎯 Select Target Column for Prediction", options=numeric_cols)
+        model_comparison(df[numeric_cols], target)
+
+else:
+    st.stop()
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# Streamlit page setup
+st.set_page_config(page_title="Oil & Gas ML Dashboard", layout="wide")
+
+# --- Load dataset ---
+@st.cache_data
+def load_dataset():
+    try:
+        return pd.read_csv("data/oil_gas_production_india.csv")
+    except FileNotFoundError:
+        return None
+
+# --- Evaluate model ---
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    return {
+        "R2 Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "RMSE": mean_squared_error(y_test, predictions, squared=False)
+    }
+
+# --- Train and compare models ---
+def model_comparison(df, target_col):
+    st.subheader("📈 ML Model Comparison")
+
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(random_state=42),
+        "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+    }
+
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        results[name] = evaluate_model(model, X_test, y_test)
+
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(results).T
+
+    # Show metrics table
+    st.dataframe(results_df.style.highlight_max(axis=0), use_container_width=True)
+
+    # Plot metrics
+    st.subheader("📊 Model Metrics Comparison")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    results_df.plot(kind="bar", ax=ax)
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
+
+# --- Main UI ---
+st.title("📊 Oil & Gas Production ML Dashboard")
+st.markdown("Compare machine learning models for predicting oil and gas production.")
+
+# Load default dataset if exists
+df = load_dataset()
+
+# If not found, ask user to upload
+if df is None:
+    st.warning("⚠️ Default dataset not found. Please upload your dataset.")
+    uploaded_file = st.file_uploader("📤 Upload your Oil & Gas CSV", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+
+# If dataset loaded
+if df is not None:
+    st.success("✅ Dataset Loaded Successfully!")
+    st.subheader("📋 Dataset Preview")
+    st.dataframe(df.head(), use_container_width=True)
+
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+
+    if len(numeric_cols) < 2:
+        st.error("Dataset must contain at least 2 numeric columns.")
+    else:
+        target = st.selectbox("🎯 Select Target Column for Prediction", options=numeric_cols)
+        model_comparison(df[numeric_cols], target)
+
+else:
+    st.stop()
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# Streamlit page setup
+st.set_page_config(page_title="Oil & Gas ML Dashboard", layout="wide")
+
+# --- Load dataset ---
+@st.cache_data
+def load_dataset():
+    try:
+        return pd.read_csv("data/oil_gas_production_india.csv")
+    except FileNotFoundError:
+        return None
+
+# --- Evaluate model ---
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    return {
+        "R2 Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "RMSE": mean_squared_error(y_test, predictions, squared=False)
+    }
+
+# --- Train and compare models ---
+def model_comparison(df, target_col):
+    st.subheader("📈 ML Model Comparison")
+
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(random_state=42),
+        "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+    }
+
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        results[name] = evaluate_model(model, X_test, y_test)
+
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(results).T
+
+    # Show metrics table
+    st.dataframe(results_df.style.highlight_max(axis=0), use_container_width=True)
+
+    # Plot metrics
+    st.subheader("📊 Model Metrics Comparison")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    results_df.plot(kind="bar", ax=ax)
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
+
+# --- Main UI ---
+st.title("📊 Oil & Gas Production ML Dashboard")
+st.markdown("Compare machine learning models for predicting oil and gas production.")
+
+# Load default dataset if exists
+df = load_dataset()
+
+# If not found, ask user to upload
+if df is None:
+    st.warning("⚠️ Default dataset not found. Please upload your dataset.")
+    uploaded_file = st.file_uploader("📤 Upload your Oil & Gas CSV", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+
+# If dataset loaded
+if df is not None:
+    st.success("✅ Dataset Loaded Successfully!")
+    st.subheader("📋 Dataset Preview")
+    st.dataframe(df.head(), use_container_width=True)
+
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+
+    if len(numeric_cols) < 2:
+        st.error("Dataset must contain at least 2 numeric columns.")
+    else:
+        target = st.selectbox("🎯 Select Target Column for Prediction", options=numeric_cols)
+        model_comparison(df[numeric_cols], target)
+
+else:
+    st.stop()
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+# Streamlit page setup
+st.set_page_config(page_title="Oil & Gas ML Dashboard", layout="wide")
+
+# --- Load dataset ---
+@st.cache_data
+def load_dataset():
+    try:
+        return pd.read_csv("data/oil_gas_production_india.csv")
+    except FileNotFoundError:
+        return None
+
+# --- Evaluate model ---
+def evaluate_model(model, X_test, y_test):
+    predictions = model.predict(X_test)
+    return {
+        "R2 Score": r2_score(y_test, predictions),
+        "MAE": mean_absolute_error(y_test, predictions),
+        "RMSE": mean_squared_error(y_test, predictions, squared=False)
+    }
+
+# --- Train and compare models ---
+def model_comparison(df, target_col):
+    st.subheader("📈 ML Model Comparison")
+
+    features = df.drop(columns=[target_col])
+    target = df[target_col]
+
+    # Train-test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        features, target, test_size=0.2, random_state=42
+    )
+
+    # Define models
+    models = {
+        "Linear Regression": LinearRegression(),
+        "Random Forest": RandomForestRegressor(random_state=42),
+        "XGBoost": XGBRegressor(objective='reg:squarederror', random_state=42)
+    }
+
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        results[name] = evaluate_model(model, X_test, y_test)
+
+    # Convert results to DataFrame
+    results_df = pd.DataFrame(results).T
+
+    # Show metrics table
+    st.dataframe(results_df.style.highlight_max(axis=0), use_container_width=True)
+
+    # Plot metrics
+    st.subheader("📊 Model Metrics Comparison")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    results_df.plot(kind="bar", ax=ax)
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
+
+# --- Main UI ---
+st.title("📊 Oil & Gas Production ML Dashboard")
+st.markdown("Compare machine learning models for predicting oil and gas production.")
+
+# Load default dataset if exists
+df = load_dataset()
+
+# If not found, ask user to upload
+if df is None:
+    st.warning("⚠️ Default dataset not found. Please upload your dataset.")
+    uploaded_file = st.file_uploader("📤 Upload your Oil & Gas CSV", type=["csv"])
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+
+# If dataset loaded
+if df is not None:
+    st.success("✅ Dataset Loaded Successfully!")
+    st.subheader("📋 Dataset Preview")
+    st.dataframe(df.head(), use_container_width=True)
+
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+
+    if len(numeric_cols) < 2:
+        st.error("Dataset must contain at least 2 numeric columns.")
+    else:
+        target = st.selectbox("🎯 Select Target Column for Prediction", options=numeric_cols)
+        model_comparison(df[numeric_cols], target)
+
+else:
+    st.stop()
