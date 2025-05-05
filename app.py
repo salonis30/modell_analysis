@@ -18,7 +18,8 @@ page = st.sidebar.radio("", ["🔴 Static Comparative Analysis", "⚙️ Dynamic
 # Load predefined dataset
 @st.cache_data
 def load_dataset():
-    return pd.read_csv("data/oil_gas_production_india.csv")  # ✅ Update with your actual path
+    return pd.read_csv("oil_gas_production_india.csv")  # No "data/" folder needed
+
 
 # Common ML function
 def evaluate_models(X, y, models):
