@@ -101,3 +101,22 @@ elif page == "Dynamic Prediction":
     else:
         st.error("The model has not been loaded properly.")
 
+# DYNAMIC PAGE
+if "Dynamic" in page:
+    st.subheader("📁 Upload Two CSV Files for Side-by-Side Visualisation")
+    file1 = st.file_uploader("Upload First CSV", type=["csv"], key="file1")
+    file2 = st.file_uploader("Upload Second CSV", type=["csv"], key="file2")
+
+    if file1 is not None and file2 is not None:
+        df1 = pd.read_csv(file1)
+        df2 = pd.read_csv(file2)
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("📄 **First Dataset Preview**")
+            st.dataframe(df1.head())
+        with col2:
+            st.write("📄 **Second Dataset Preview**")
+            st.dataframe(df2.head())
+    else:
+        st.info("Upload two datasets for dynamic comparison.")     
