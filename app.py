@@ -65,7 +65,7 @@ def comparative_analysis():
 
             metrics = ['R2 Score', 'MAE', 'RMSE']
             for metric in metrics:
-                fig, ax = plt.subplots(figsize=(4, 3))  # Compact graph size
+                fig, ax = plt.subplots(figsize=(2, 1))  # Compact graph size
                 ax.bar(results.keys(), [results[model][metric] for model in results], color=['skyblue', 'orange', 'green'])
                 ax.set_title(f'{metric} Comparison', fontsize=10)
                 ax.set_ylabel(metric, fontsize=8)
