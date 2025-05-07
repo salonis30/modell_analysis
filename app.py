@@ -65,10 +65,11 @@ def comparative_analysis():
 
             metrics = ['R2 Score', 'MAE', 'RMSE']
             for metric in metrics:
-                fig, ax = plt.subplots()
-                ax.bar(results.keys(), [results[model][metric] for model in results])
-                ax.set_title(f'{metric} Comparison')
-                ax.set_ylabel(metric)
+                fig, ax = plt.subplots(figsize=(4, 3))  # Compact graph size
+                ax.bar(results.keys(), [results[model][metric] for model in results], color=['skyblue', 'orange', 'green'])
+                ax.set_title(f'{metric} Comparison', fontsize=10)
+                ax.set_ylabel(metric, fontsize=8)
+                ax.tick_params(axis='x', labelrotation=10)
                 st.pyplot(fig)
 
 
@@ -103,18 +104,19 @@ def dynamic_visualization():
         col2_selected = st.selectbox("Select Column from File 2", numeric_cols2)
 
         if col1_selected and col2_selected:
-            # Generating separate graphs for both files
-            fig, ax = plt.subplots()
-            ax.plot(df1[col1_selected], label=f'File 1: {col1_selected}', color='blue')
-            ax.set_title(f"Graph for File 1: {col1_selected}")
-            ax.legend()
-            st.pyplot(fig)
+            # Plot for File 1
+            fig1, ax1 = plt.subplots(figsize=(4, 3))
+            ax1.plot(df1[col1_selected], label=f'File 1: {col1_selected}', color='blue')
+            ax1.set_title(f"Graph for File 1: {col1_selected}", fontsize=10)
+            ax1.legend(fontsize=8)
+            st.pyplot(fig1)
 
-            fig, ax = plt.subplots()
-            ax.plot(df2[col2_selected], label=f'File 2: {col2_selected}', color='green')
-            ax.set_title(f"Graph for File 2: {col2_selected}")
-            ax.legend()
-            st.pyplot(fig)
+            # Plot for File 2
+            fig2, ax2 = plt.subplots(figsize=(4, 3))
+            ax2.plot(df2[col2_selected], label=f'File 2: {col2_selected}', color='green')
+            ax2.set_title(f"Graph for File 2: {col2_selected}", fontsize=10)
+            ax2.legend(fontsize=8)
+            st.pyplot(fig2)
 
 
 # Navigation
