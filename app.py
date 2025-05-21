@@ -8,7 +8,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 
-# Set page configuration first
+# Set page configuration
 st.set_page_config(page_title="ML Comparison & Dynamic Visualizer", layout="wide")
 
 # Function for ML Model Evaluation
@@ -32,7 +32,6 @@ def evaluate_models(X_train, X_test, y_train, y_test):
         }
 
     return results
-
 
 # Comparative Analysis Page
 def comparative_analysis():
@@ -65,13 +64,14 @@ def comparative_analysis():
 
             metrics = ['R2 Score', 'MAE', 'RMSE']
             for metric in metrics:
-                fig, ax = plt.subplots(figsize=(2, 1))  # Compact graph size
+                fig, ax = plt.subplots(figsize=(1.8, 1.2))  # Smaller graph size
                 ax.bar(results.keys(), [results[model][metric] for model in results], color=['skyblue', 'orange', 'green'])
-                ax.set_title(f'{metric} Comparison', fontsize=10)
-                ax.set_ylabel(metric, fontsize=8)
-                ax.tick_params(axis='x', labelrotation=10)
+                ax.set_title(f'{metric}', fontsize=8)
+                ax.set_ylabel(metric, fontsize=6)
+                ax.tick_params(axis='x', labelrotation=10, labelsize=6)
+                ax.tick_params(axis='y', labelsize=6)
+                fig.tight_layout(pad=0.5)
                 st.pyplot(fig)
-
 
 # Dynamic Visualization Page
 def dynamic_visualization():
@@ -105,19 +105,22 @@ def dynamic_visualization():
 
         if col1_selected and col2_selected:
             # Plot for File 1
-            fig1, ax1 = plt.subplots(figsize=(4, 3))
-            ax1.plot(df1[col1_selected], label=f'File 1: {col1_selected}', color='blue')
-            ax1.set_title(f"Graph for File 1: {col1_selected}", fontsize=10)
-            ax1.legend(fontsize=8)
+            fig1, ax1 = plt.subplots(figsize=(3.5, 2.5))  # Smaller graph size
+            ax1.plot(df1[col1_selected], label=f'{col1_selected}', color='blue', linewidth=1)
+            ax1.set_title(f"{col1_selected}", fontsize=9)
+            ax1.legend(fontsize=7)
+            ax1.tick_params(axis='both', labelsize=6)
+            fig1.tight_layout(pad=0.5)
             st.pyplot(fig1)
 
             # Plot for File 2
-            fig2, ax2 = plt.subplots(figsize=(4, 3))
-            ax2.plot(df2[col2_selected], label=f'File 2: {col2_selected}', color='green')
-            ax2.set_title(f"Graph for File 2: {col2_selected}", fontsize=10)
-            ax2.legend(fontsize=8)
+            fig2, ax2 = plt.subplots(figsize=(3.5, 2.5))  # Smaller graph size
+            ax2.plot(df2[col2_selected], label=f'{col2_selected}', color='green', linewidth=1)
+            ax2.set_title(f"{col2_selected}", fontsize=9)
+            ax2.legend(fontsize=7)
+            ax2.tick_params(axis='both', labelsize=6)
+            fig2.tight_layout(pad=0.5)
             st.pyplot(fig2)
-
 
 # Navigation
 st.sidebar.title("📂 Navigation")
